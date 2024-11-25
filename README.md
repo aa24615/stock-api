@@ -19,7 +19,7 @@ composer require zyan/stock-api -vvv
 
 #### 实例化
 
-```
+```php
 $stockApi = new StockApi();
 $xueQiuApi = $stockApi->getXueQiuApi(); //获取雪球api
 ```
@@ -27,7 +27,7 @@ $xueQiuApi = $stockApi->getXueQiuApi(); //获取雪球api
 
 #### 股票列表
 
-```
+```php
 //深圳A股
 $xueQiuApi->getSzListAllToA();
 //深圳B股
@@ -44,7 +44,7 @@ $xueQiuApi->getHkListAll();
 
 return
 
-```
+```php
 (
     [count] => 2840
     [raw_count] => 2840
@@ -104,11 +104,11 @@ return
 ```
 注意: 以上方法都是全量的,就是分页获取所有数据,如果只需要部分数据,请自行分页获取
 
-```
+```php
 $stockApi->list(string $market,string $type,int $currentPage,int $size)
 ```
 return
-```
+```php
 (
     [data] => Array
         (
