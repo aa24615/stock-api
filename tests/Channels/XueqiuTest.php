@@ -25,7 +25,6 @@ class XueqiuTest extends TestCase
     {
         $xueqiu = new Xueqiu();
         $data = $xueqiu->list('CN', 'sza');
-
         $this->assertEquals($data['error_code'], 0);
         $this->assertIsArray($data['data']);
     }

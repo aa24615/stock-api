@@ -14,6 +14,7 @@ use Zyan\StockApi\HttpClient\HttpClient;
 class Xueqiu extends HttpClient
 {
 
+
     /**
      * @var string
      */
@@ -26,7 +27,7 @@ class Xueqiu extends HttpClient
     {
         $this->setConfig([
             'headers' => [
-                'Cookie' => 'xq_a_token=691d6f0a678b98a172affb89759b9c46fd23b4e2; xqat=691d6f0a678b98a172affb89759b9c46fd23b4e2; xq_r_token=de180625dcdde2e538953eb202d55300cae40fe1; xq_id_token=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJ1aWQiOi0xLCJpc3MiOiJ1YyIsImV4cCI6MTczNDM5Njg3MiwiY3RtIjoxNzMyNTE5MzQ2NzgxLCJjaWQiOiJkOWQwbjRBWnVwIn0.RMLtESbf5lBUahBu634GzJFCeKj0QJjzCW-YTgFZV1cGPI8_PTWnNpVSoEGrk41hxYSg9nQCEPINSI0DbAlb1rkAouOXa9cjSOD8GXUPEY8JVjadMwuVZk7bSoNXe2tYJRbE1JHyO6OXHMHWbA2Jc9EMiL-5i_ny6bgICciUwGkhUItBP3l1VmJsidqf74brBMhMJY3pTSuFY-Rq0Nmv535s_4G1nDH7gWhCLZFxWGP8Qrc1iPcXx1zkOnPSJfWlv3GnRv9cPkWfnWoZQxn_6Qstzi6fztelm-ejoStUfpYjIde8PIYaXW12YGNk8LiePv8_vdG5iH-w6n6v6I2fAg; cookiesu=201732519380165; u=201732519380165; device_id=1a12c62833b392f4f9d350cd35036dea; Hm_lvt_1db88642e346389874251b5a1eded6e3=1732122909,1732440714; Hm_lpvt_1db88642e346389874251b5a1eded6e3=1732519383; HMACCOUNT=D8D05E5EB41921A3; ssxmod_itna=YqGxnDciDtG=Axmq0Lx0P+1Qx2DUx7IxeUY0pxq4+Ux3tD/BiIDnqD=GFDK40EECKF0f0Y4YiDTxA3Y8iiIxaRli0qjP3GxpBeDHxY=DUofTwoD4f5GwD0eG+DD4DWSx03DoxGYlAx0bCy6Hs26KDpxGrDlKDRx07KK5DbxDaDGaCG7Px2ro7nrDDB6R3EG4DEevzG2Aht4D1GA55Ce5D9x0CDlP4SRoD06kXeDAzRbME0jI+340OD0FmBoIwFivGlh9Ea7DQEQxrd0=QK024zmPYClW5YQiquBh5IQxYbnGICA/dGyxBDDP5YD5IGxSGDD=; ssxmod_itna2=YqGxnDciDtG=Axmq0Lx0P+1Qx2DUx7IxeUY0pxq4+UhYG9zaDBMkD7pKXkm5+OD6GBK01+4RhDrtKU1eYvhikBCi01DE44W0IDHBmTiECDa1KatCU67cQYyWLaCqpCKApd4CdQsQOC8OpbBD+7DhwbNCc=Pz7egBeHs1wrFxWTF9aCq1m1LOBQ3g5H3EWYum7th+ori/eaigyh2Rx70UmGk4ahH4KW=ZeGP1KWLommYPk05RrjZ+n8wzotYKvo+bentXmwuD+Hr1IxaL9OGiPnfegrKDIBkp3tqi38H5FiySWexE3fmg5qWqYxeq1UpeQNGmkQfoZdXcfE6ioFi+Bvd1Q/YIr7rlPxXl3UBQYork=mroINnmb44pYLuZLMC03KNEno2BpkOpwPjxre1xP+nofa=GKxHFIm2Lf2jLYpH1oq7KGDc/rI+=G1ir020+OGaFQiibpS+U/m479IO3X89oOK349i6Ki6T41IxW6d3NhzKk2y9crqCYaoh1x38OFfcc4k=Pg9n9X9trznGou34VwG854BhHDG2744BHdwuDz5T+T4KZC=1Ci=4f2EYi8b0=+Dzbg8l0jTZiCIxD08DiQ4YD'
+                 'Cookie' => 'cookiesu=201732519380165; device_id=1a12c62833b392f4f9d350cd35036dea; .thumbcache_f24b8bbe5a5934237bbc0eda20c1b6e7=; s=ac12ea5vol; acw_tc=2760827f17393540720764649e9be3949bb470800916f60abda77b3fb81a88; xq_a_token=b1d767edc014ddf478005982ba9e053910dad8dc; xqat=b1d767edc014ddf478005982ba9e053910dad8dc; xq_r_token=4ac6dcb5a1bd823260eef986e5e529b07195748d; xq_id_token=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJ1aWQiOi0xLCJpc3MiOiJ1YyIsImV4cCI6MTc0MDg3NzAzNywiY3RtIjoxNzM5MzU0MDQ2NzM4LCJjaWQiOiJkOWQwbjRBWnVwIn0.kOirUiXoCpQmA2KNhlQ9ovGt-pHtk7635EKp9UbTlDADwK7o6Q5Jr3ebEWbaqDAUE4Xh8YbMvZcCqiU7knFHrLyJX8XJ7_bCNzRlE71E49gsSezpMRhUgcItu5EvBILFMPyJgf7NAuzCV1UEwVpDgegtC2mrVwIjN0F4Cuw4nlCto0y2p4caeXSxeguh2_c0O_klXxc2RU18iJjJJmGpXVaLTpjTs28LpmCyprXXv24NQTTzLUe4_VEKFNHqbrOLnpYOeH3AO6y8bbrGh8Pl-W4QpbCeZPrepSGJIyrjDZBA10o36AnY9jwTgkewsds9w_lESFFN0qMZ-xs4nCSnuQ; u=201732519380165; Hm_lvt_1db88642e346389874251b5a1eded6e3=1739354073; HMACCOUNT=D8D05E5EB41921A3; is_overseas=0; ssxmod_itna=Qqfx9DyD0iGQq4eq0LK0Pp6=wAxYv4D8+K+D0xOw34GXY+oDZDiqAPGhDC8RFlWrPP=Y0GiL+qfCi2dr+89rx+FN=nfO0=DU4i8DCk03qTDemtD5xGoDPxDeDAAqGaDb4DrcdqGPyn2LvkAxiOD7eDXxGCDQ9GUxGWDiPD7g9DTEGkr9aC3DDz3eSiVnDDEB911pBGd4D1qCHerBKD9x0CDlPxBIoD0pMU3ny103kE6G9h540OD0IwcZc+FeysgaFEaYbd=YRe81+9ah44viGoKeeQ=7DQYGiYTQGYs70ppe25ClZ/3DDWxr14D=; ssxmod_itna2=Qqfx9DyD0iGQq4eq0LK0Pp6=wAxYv4D8+K+D0xOd4A=FPD/7xKdK7=D2WeD=; Hm_lpvt_1db88642e346389874251b5a1eded6e3=1739354132'
             ]
         ]);
     }
@@ -57,7 +58,18 @@ class Xueqiu extends HttpClient
             //'md5__1632' => 'iqRxuD9DcDyAiQeDsD7mNIxYqCG7Y8PH4D',
         ]);
 
+        // 错误码
+        if($body['error_code'] != 400016){
+
+        }
+
         return $body;
+    }
+
+
+    public function getCookie(string $url, array $data)
+    {
+
     }
 
 }
