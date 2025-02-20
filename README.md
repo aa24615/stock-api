@@ -16,12 +16,17 @@ composer require zyan/stock-api -vvv
 ```
 ## 用法
 
+#### 配置 
+```php
+StockApi::setConfig([
+    'cache_path' => '/tmp/', //默认 ./runtime
+]);
+```
 
-#### 实例化
+#### 开始
 
 ```php
-$stockApi = new StockApi();
-$xueQiuApi = $stockApi->getXueQiuApi(); //获取雪球api
+$stockApi = StockApi::getXueqiu(); //获取雪球api
 ```
 目前只有雪球api,后面版本会增加其他api
 
