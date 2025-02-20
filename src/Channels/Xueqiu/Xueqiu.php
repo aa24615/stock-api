@@ -3,6 +3,7 @@
 namespace Zyan\StockApi\Channels\Xueqiu;
 
 use Zyan\StockApi\HttpClient\HttpClient;
+use Zyan\StockApi\StockApi;
 
 /**
  * Class Xueqiu.
@@ -14,7 +15,6 @@ use Zyan\StockApi\HttpClient\HttpClient;
 class Xueqiu extends HttpClient
 {
 
-
     /**
      * @var string
      */
@@ -25,9 +25,12 @@ class Xueqiu extends HttpClient
      */
     public function __construct()
     {
+
+        $cookie = $this->getCookie();
+
         $this->setConfig([
             'headers' => [
-                 'Cookie' => 'cookiesu=201732519380165; device_id=1a12c62833b392f4f9d350cd35036dea; .thumbcache_f24b8bbe5a5934237bbc0eda20c1b6e7=; s=ac12ea5vol; acw_tc=2760827f17393540720764649e9be3949bb470800916f60abda77b3fb81a88; xq_a_token=b1d767edc014ddf478005982ba9e053910dad8dc; xqat=b1d767edc014ddf478005982ba9e053910dad8dc; xq_r_token=4ac6dcb5a1bd823260eef986e5e529b07195748d; xq_id_token=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJ1aWQiOi0xLCJpc3MiOiJ1YyIsImV4cCI6MTc0MDg3NzAzNywiY3RtIjoxNzM5MzU0MDQ2NzM4LCJjaWQiOiJkOWQwbjRBWnVwIn0.kOirUiXoCpQmA2KNhlQ9ovGt-pHtk7635EKp9UbTlDADwK7o6Q5Jr3ebEWbaqDAUE4Xh8YbMvZcCqiU7knFHrLyJX8XJ7_bCNzRlE71E49gsSezpMRhUgcItu5EvBILFMPyJgf7NAuzCV1UEwVpDgegtC2mrVwIjN0F4Cuw4nlCto0y2p4caeXSxeguh2_c0O_klXxc2RU18iJjJJmGpXVaLTpjTs28LpmCyprXXv24NQTTzLUe4_VEKFNHqbrOLnpYOeH3AO6y8bbrGh8Pl-W4QpbCeZPrepSGJIyrjDZBA10o36AnY9jwTgkewsds9w_lESFFN0qMZ-xs4nCSnuQ; u=201732519380165; Hm_lvt_1db88642e346389874251b5a1eded6e3=1739354073; HMACCOUNT=D8D05E5EB41921A3; is_overseas=0; ssxmod_itna=Qqfx9DyD0iGQq4eq0LK0Pp6=wAxYv4D8+K+D0xOw34GXY+oDZDiqAPGhDC8RFlWrPP=Y0GiL+qfCi2dr+89rx+FN=nfO0=DU4i8DCk03qTDemtD5xGoDPxDeDAAqGaDb4DrcdqGPyn2LvkAxiOD7eDXxGCDQ9GUxGWDiPD7g9DTEGkr9aC3DDz3eSiVnDDEB911pBGd4D1qCHerBKD9x0CDlPxBIoD0pMU3ny103kE6G9h540OD0IwcZc+FeysgaFEaYbd=YRe81+9ah44viGoKeeQ=7DQYGiYTQGYs70ppe25ClZ/3DDWxr14D=; ssxmod_itna2=Qqfx9DyD0iGQq4eq0LK0Pp6=wAxYv4D8+K+D0xOd4A=FPD/7xKdK7=D2WeD=; Hm_lpvt_1db88642e346389874251b5a1eded6e3=1739354132'
+                'Cookie' => $cookie
             ]
         ]);
     }
@@ -58,18 +61,79 @@ class Xueqiu extends HttpClient
             //'md5__1632' => 'iqRxuD9DcDyAiQeDsD7mNIxYqCG7Y8PH4D',
         ]);
 
-        // 错误码
-        if($body['error_code'] != 400016){
-
-        }
-
         return $body;
     }
 
-
-    public function getCookie(string $url, array $data)
+    /**
+     * getCookie.
+     *
+     * @return string
+     *
+     * @author 读心印 <aa24615@qq.com>
+     */
+    public function getCookie()
     {
+        $filename = StockApi::getConfig('cache_path').'/xueqiu_cookie';
 
+        //从缓存中获取
+        if(file_exists($filename)){
+            $data = json_decode(file_get_contents($filename), true);
+            if(time()-$data['time']>86400){
+                unlink($filename);
+            }else{
+                return $data['cookie'];
+            }
+        }
+
+        // 目标网址
+        $url = "https://xueqiu.com/?md5__1038=QqGxcDnDyiitnD05o4%2Br%3D8%3DDtmZUS7ubD";
+
+        // 初始化cURL会话
+        $ch = curl_init();
+
+        // 设置cURL传输选项
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); // 返回结果而不是直接输出
+        curl_setopt($ch, CURLOPT_HEADER, 1); // 包括header在返回内容里
+        curl_setopt($ch, CURLOPT_NOBODY, 0); // 返回body内容
+
+        // 如果需要支持HTTPS，请确保以下设置已启用
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // 跳过SSL证书验证（生产环境请谨慎使用）
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2); // 检查证书的域名是否匹配
+
+        // 执行cURL会话
+        $response = curl_exec($ch);
+
+        if ($response === FALSE) {
+            throw new \Exception('cURL error: ' . curl_error($ch));
+        } else {
+            // 分离头部信息和主体内容
+            list($header, $body) = explode("\r\n\r\n", $response, 2);
+
+            // 解析Set-Cookie行
+            preg_match_all('/^Set-Cookie:\s*([^;]*)/mi', $header, $matches);
+            $cookies = array();
+            foreach ($matches[1] as $item) {
+                parse_str($item, $cookie);
+                $cookies = array_merge($cookies, $cookie);
+            }
+            $user_cookie = '';
+            foreach ($cookies as $key => $value) {
+                $user_cookie .= "$key=$value; ";
+            }
+        }
+        // 关闭cURL资源，并释放系统资源
+        curl_close($ch);
+
+        //缓存
+        $json = json_encode([
+            'time' => time(),
+            'cookie' => $user_cookie
+        ]);
+
+        file_put_contents($filename, $json);
+
+
+        return $user_cookie;
     }
-
 }

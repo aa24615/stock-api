@@ -22,31 +22,32 @@ use Zyan\StockApi\Channels\Xueqiu\XueqiuList;
  */
 class StockApi
 {
-    protected $config = [];
-
-    public function __construct(array $config = [])
-    {
-        $this->config = $config;
-    }
+    protected static array $config = [
+        'cache_path' => __DIR__ . '/../runtime/'
+    ];
 
     /**
-     * @return array
+     * @return array | string
      */
-    public function getConfig(): array
+    public static function getConfig($name=null)
     {
-        return $this->config;
+        if($name){
+            return self::$config[$name];
+        }
+
+        return self::$config;
     }
+
 
     /**
      * @param array $config
      */
-    public function setConfig(array $config): void
+    public static function setConfig(array $config): void
     {
-        $this->config = $config;
+        self::$config = $config;
     }
 
-    public function getXueQiuApi()
-    {
+    public static function getXueqiu(){
         return new XueqiuList();
     }
 }

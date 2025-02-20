@@ -15,8 +15,13 @@ use Zyan\StockApi\StockApi;
  */
 class StockApiTest extends TestCase
 {
-    public function test_xueqiu()
+    public function test_config()
     {
-        $this->assertTrue(true);
+        StockApi::setConfig(['a'=>11]);
+
+        $this->assertEquals(StockApi::getConfig('a'),11);
     }
+
+    
 }
+

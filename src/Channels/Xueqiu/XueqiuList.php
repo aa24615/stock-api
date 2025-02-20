@@ -2,6 +2,8 @@
 
 namespace Zyan\StockApi\Channels\Xueqiu;
 
+use Zyan\StockApi\Channels\ChannelsInterface;
+
 /**
  * Class XueqiuList.
  *
@@ -9,20 +11,8 @@ namespace Zyan\StockApi\Channels\Xueqiu;
  *
  * @author 读心印 <aa24615@qq.com>
  */
-class XueqiuList extends Xueqiu
+class XueqiuList extends Xueqiu implements ChannelsInterface
 {
-
-    /**
-     * 获取所有深圳A股.
-     *
-     * @return array
-     *
-     * @author 读心印 <aa24615@qq.com>
-     */
-    public function getSzListAllToA(): array
-    {
-        return $this->getListAll('CN', 'sza');
-    }
 
     /**
      * 分页获取所有股票.
@@ -68,6 +58,18 @@ class XueqiuList extends Xueqiu
         ];
 
         return $result;
+    }
+
+    /**
+     * 获取所有深圳A股.
+     *
+     * @return array
+     *
+     * @author 读心印 <aa24615@qq.com>
+     */
+    public function getSzListAllToA(): array
+    {
+        return $this->getListAll('CN', 'sza');
     }
 
     /**
