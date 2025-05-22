@@ -18,6 +18,8 @@ interface ChannelsInterface
 {
     public function getListAll(string $market, string $type): array;
 
+    public function getRecordsAll(string $symbol): array;
+
     public function getSzListAllToA(): array;
 
     public function getSzListAllToB(): array;

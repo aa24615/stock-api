@@ -14,6 +14,18 @@ use Zyan\StockApi\Channels\ChannelsInterface;
 class XueqiuList extends Xueqiu implements ChannelsInterface
 {
 
+
+    public function getRecordsAll(string $symbol): array
+    {
+        // TODO: Implement getRecordsAll() method.
+
+
+            $data = $this->kline($symbol, time()*1000, -200);
+
+
+            print_r($data);
+    }
+
     /**
      * 分页获取所有股票.
      *

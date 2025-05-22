@@ -64,6 +64,21 @@ class Xueqiu extends HttpClient
         return $body;
     }
 
+    public function kline($symbol,$begin,$count){
+        $url  = '/v5/stock/chart/kline.json';
+
+        $body = $this->get($url, [
+            'symbol' => $symbol,
+            'begin' => $begin,
+            'period' => 'day',
+            'type' => 'before',
+            'count' => $count,
+            'indicator' => 'kline,pe,pb,ps,pcf,market_capital,agt,ggt,balance',
+        ]);
+
+        return $body;
+    }
+
     /**
      * getCookie.
      *

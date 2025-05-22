@@ -16,6 +16,13 @@ use Zyan\StockApi\Channels\Xueqiu\XueqiuList;
 class XueqiuTest extends TestCase
 {
 
+    public function test_records()
+    {
+        $xueqiu = new XueqiuList();
+        $data = $xueqiu->getRecordsAll('SZ000651');
+
+    }
+
     /**
      * 基接口.
      *
