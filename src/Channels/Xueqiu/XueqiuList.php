@@ -19,11 +19,30 @@ class XueqiuList extends Xueqiu implements ChannelsInterface
     {
         // TODO: Implement getRecordsAll() method.
 
+        $list = [];
 
-            $data = $this->kline($symbol, time()*1000, -200);
+        $time = time()*1000;
+
+        while (true){
+            $data = $this->kline($symbol, $time, -200);
+
+            $count = count($data['data']['item']);
+
+            if($count<200){
+                break;
+            }
 
 
-            print_r($data);
+            $list = array_merge($list, $data['data']['item']);
+
+            $time = $data['data']['item'][0][0];
+
+        }
+
+
+
+        return $list;
+
     }
 
     /**

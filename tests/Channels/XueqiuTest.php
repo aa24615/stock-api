@@ -21,6 +21,9 @@ class XueqiuTest extends TestCase
         $xueqiu = new XueqiuList();
         $data = $xueqiu->getRecordsAll('SZ000651');
 
+        var_dump(count($data));
+
+        $this->assertTrue(count($data)>0);
     }
 
     /**
