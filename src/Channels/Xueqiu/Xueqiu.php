@@ -25,12 +25,22 @@ class Xueqiu extends HttpClient
      */
     public function __construct()
     {
-
         $cookie = $this->getCookie();
 
         $this->setConfig([
             'headers' => [
-                'Cookie' => $cookie
+                'Cookie' => $cookie,
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept' => 'application/json, text/plain, */*',
+                'Accept-Language' => 'zh-CN,zh;q=0.9,en;q=0.8',
+                'Accept-Encoding' => 'gzip, deflate, br',
+                'Connection' => 'keep-alive',
+                'Referer' => 'https://xueqiu.com/',
+                'Sec-Fetch-Dest' => 'empty',
+                'Sec-Fetch-Mode' => 'cors',
+                'Sec-Fetch-Site' => 'same-site',
+                'X-Requested-With' => 'XMLHttpRequest',
+                'Origin' => 'https://xueqiu.com'
             ]
         ]);
     }
@@ -58,14 +68,14 @@ class Xueqiu extends HttpClient
             'order_by' => 'percent',
             'market' => $market,
             'type' => $type,
-            //'md5__1632' => 'iqRxuD9DcDyAiQeDsD7mNIxYqCG7Y8PH4D',
         ]);
 
         return $body;
     }
 
-    public function kline($symbol,$begin,$count){
-        $url  = '/v5/stock/chart/kline.json';
+    public function kline($symbol, $begin, $count)
+    {
+        $url = 'v5/stock/chart/kline.json';
 
         $body = $this->get($url, [
             'symbol' => $symbol,
@@ -88,57 +98,20 @@ class Xueqiu extends HttpClient
      */
     public function getCookie()
     {
-        $filename = StockApi::getConfig('cache_path').'/xueqiu_cookie';
+        $filename = StockApi::getConfig('cache_path') . '/xueqiu_cookie';
 
         //从缓存中获取
-        if(file_exists($filename)){
+        if (file_exists($filename)) {
             $data = json_decode(file_get_contents($filename), true);
-            if(time()-$data['time']>86400){
+            if (time() - $data['time'] > 1800) { // 改为30分钟过期
                 unlink($filename);
-            }else{
+            } else {
                 return $data['cookie'];
             }
         }
 
-        // 目标网址
-        $url = "https://xueqiu.com/?md5__1038=QqGxcDnDyiitnD05o4%2Br%3D8%3DDtmZUS7ubD";
-
-        // 初始化cURL会话
-        $ch = curl_init();
-
-        // 设置cURL传输选项
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); // 返回结果而不是直接输出
-        curl_setopt($ch, CURLOPT_HEADER, 1); // 包括header在返回内容里
-        curl_setopt($ch, CURLOPT_NOBODY, 0); // 返回body内容
-
-        // 如果需要支持HTTPS，请确保以下设置已启用
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // 跳过SSL证书验证（生产环境请谨慎使用）
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2); // 检查证书的域名是否匹配
-
-        // 执行cURL会话
-        $response = curl_exec($ch);
-
-        if ($response === FALSE) {
-            throw new \Exception('cURL error: ' . curl_error($ch));
-        } else {
-            // 分离头部信息和主体内容
-            list($header, $body) = explode("\r\n\r\n", $response, 2);
-
-            // 解析Set-Cookie行
-            preg_match_all('/^Set-Cookie:\s*([^;]*)/mi', $header, $matches);
-            $cookies = array();
-            foreach ($matches[1] as $item) {
-                parse_str($item, $cookie);
-                $cookies = array_merge($cookies, $cookie);
-            }
-            $user_cookie = '';
-            foreach ($cookies as $key => $value) {
-                $user_cookie .= "$key=$value; ";
-            }
-        }
-        // 关闭cURL资源，并释放系统资源
-        curl_close($ch);
+        // 更新Cookie获取方式
+        $user_cookie = $this->getNewCookie();
 
         //缓存
         $json = json_encode([
@@ -148,6 +121,117 @@ class Xueqiu extends HttpClient
 
         file_put_contents($filename, $json);
 
+        return $user_cookie;
+    }
+
+    /**
+     * 获取新的Cookie - 修复版本
+     * 
+     * @return string
+     */
+    private function getNewCookie()
+    {
+        // 第一步：访问雪球主页获取初始Cookie
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, 'https://xueqiu.com/');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_HEADER, 1);
+        curl_setopt($ch, CURLOPT_NOBODY, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($response === FALSE || $httpCode !== 200) {
+            throw new \Exception('无法访问雪球主页，HTTP状态码: ' . $httpCode);
+        }
+
+        // 解析Cookie
+        preg_match_all('/^Set-Cookie:\s*([^;]*)/mi', $response, $matches);
+        $cookies = [];
+        foreach ($matches[1] as $item) {
+            parse_str($item, $cookie);
+            $cookies = array_merge($cookies, $cookie);
+        }
+
+        // 第二步：访问股票页面获取更多Cookie
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, 'https://xueqiu.com/S/SH000001');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_HEADER, 1);
+        curl_setopt($ch, CURLOPT_NOBODY, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        
+        // 设置Cookie
+        $cookieString = '';
+        foreach ($cookies as $key => $value) {
+            $cookieString .= "$key=$value; ";
+        }
+        curl_setopt($ch, CURLOPT_COOKIE, $cookieString);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($response === FALSE || $httpCode !== 200) {
+            throw new \Exception('无法访问股票页面，HTTP状态码: ' . $httpCode);
+        }
+
+        // 解析新的Cookie
+        preg_match_all('/^Set-Cookie:\s*([^;]*)/mi', $response, $matches);
+        foreach ($matches[1] as $item) {
+            parse_str($item, $cookie);
+            $cookies = array_merge($cookies, $cookie);
+        }
+
+        // 第三步：获取API token
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, 'https://stock.xueqiu.com/v5/stock/batch/quote.json?symbol=SH000001');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_HEADER, 1);
+        curl_setopt($ch, CURLOPT_NOBODY, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_REFERER, 'https://xueqiu.com/');
+        
+        // 设置Cookie
+        $cookieString = '';
+        foreach ($cookies as $key => $value) {
+            $cookieString .= "$key=$value; ";
+        }
+        curl_setopt($ch, CURLOPT_COOKIE, $cookieString);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($response === FALSE || $httpCode !== 200) {
+            throw new \Exception('无法获取API token，HTTP状态码: ' . $httpCode);
+        }
+
+        // 解析最终的Cookie
+        preg_match_all('/^Set-Cookie:\s*([^;]*)/mi', $response, $matches);
+        foreach ($matches[1] as $item) {
+            parse_str($item, $cookie);
+            $cookies = array_merge($cookies, $cookie);
+        }
+
+        $user_cookie = '';
+        foreach ($cookies as $key => $value) {
+            $user_cookie .= "$key=$value; ";
+        }
 
         return $user_cookie;
     }
