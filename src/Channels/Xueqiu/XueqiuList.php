@@ -15,6 +15,82 @@ class XueqiuList extends Xueqiu implements ChannelsInterface
 {
 
 
+    /**
+     * 获取历史K线
+     *
+     * @param string $symbol 股票代码
+     * @param string|null $startDate 开始日期，格式：Y-m-d，如：2023-01-01，null表示不限制
+     * @param string|null $endDate 结束日期，格式：Y-m-d，如：2023-12-31，null表示不限制
+     *
+     * @return array
+     *
+     * @author 读心印 <aa24615@qq.com>
+     */
+    public function getRecordsByDate(string $symbol, ?string $startDate = null, ?string $endDate = null): array
+    {
+        $list = [];
+
+        // 如果没有指定结束日期，使用当前时间
+        $endTime = $endDate ? strtotime($endDate) * 1000 : time() * 1000;
+        
+        // 如果没有指定开始日期，使用一个很早的时间
+        $startTime = $startDate ? strtotime($startDate) * 1000 : 0;
+
+        $time = $endTime;
+
+        while (true) {
+            $data = $this->kline($symbol, $time, -200);
+
+            // 检查API响应是否有效
+            if (!isset($data['data']['item']) || !is_array($data['data']['item'])) {
+                break;
+            }
+
+            $count = count($data['data']['item']);
+
+            if ($count < 200) {
+                // 最后一次请求，添加所有剩余数据
+                foreach ($data['data']['item'] as $item) {
+                    if ($startDate && $item[0] < $startTime) {
+                        // 如果数据时间早于开始时间，停止添加
+                        break 2;
+                    }
+                    $list[] = $item;
+                }
+                break;
+            }
+
+            // 过滤时间范围内的数据
+            $filteredItems = [];
+            foreach ($data['data']['item'] as $item) {
+                if ($startDate && $item[0] < $startTime) {
+                    // 如果数据时间早于开始时间，停止添加
+                    break 2;
+                }
+                $filteredItems[] = $item;
+            }
+
+            $list = array_merge($list, $filteredItems);
+
+            // 更新下次请求的时间
+            $time = $data['data']['item'][0][0];
+            
+            // 如果已经到达开始时间，停止请求
+            if ($startDate && $time <= $startTime) {
+                break;
+            }
+        }
+
+        // 按时间正序排列（从早到晚）
+        usort($list, function($a, $b) {
+            return $a[0] - $b[0];
+        });
+
+        return $list;
+    }
+
+
+
     public function getRecordsAll(string $symbol): array
     {
         // TODO: Implement getRecordsAll() method.
@@ -44,7 +120,6 @@ class XueqiuList extends Xueqiu implements ChannelsInterface
         return $list;
 
     }
-
     /**
      * 分页获取所有股票.
      *
